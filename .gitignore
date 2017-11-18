@@ -10,3 +10,5 @@ CTestTestfile.cmake
 *.a
 .DS_Store
 main
+lena_proc.bmp
+lena_proc2.bmp
