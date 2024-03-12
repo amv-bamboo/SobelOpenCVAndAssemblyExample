@@ -1,6 +1,6 @@
 # SobelOpenCVAndAssemblyExample
 
-Edge detection using Sobel operator written in OpenCV and assembly (clang-GCC). macOS only.
+Edge detection using Sobel operator written in OpenCV and assembly intrinsics. macOS only.
 
 ## Setup
 
@@ -11,12 +11,12 @@ xcode-select --install # if you don't have Xcode installed already
 brew install opencv sse2neon cmake ninja
 mkdir build
 cd build
+cmake ../
 ```
 
 To build the app:
 
 ```bash
-cmake ../
 cmake --build .
 ```
 
