@@ -1,13 +1,18 @@
 // MMX example
+#ifdef __x86_64__
 #include <x86intrin.h>
+#else
+#include "sse2neon.h"
+#endif
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 #include <unistd.h>
 
 #include <iostream>
 
-#include<opencv2/imgproc/imgproc.hpp>
-#include<opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 using namespace cv;
 
@@ -16,47 +21,47 @@ using namespace cv;
 // returns gradient in the x direction
 int xGradientAsm(Mat image, int x, int y) {
     _mm_empty();
-    __m64 part1 = _mm_cvtsi32_si64((int) image.at<uchar>(y - 1, x - 1));
-    __m64 part2 = _mm_cvtsi32_si64((int) image.at<uchar>(y, x - 1));
-    __m64 part3 = _mm_cvtsi32_si64((int) image.at<uchar>(y + 1, x - 1));
-    __m64 part4 = _mm_cvtsi32_si64((int) image.at<uchar>(y - 1, x + 1));
-    __m64 part5 = _mm_cvtsi32_si64((int) image.at<uchar>(y, x + 1));
-    __m64 part6 = _mm_cvtsi32_si64((int) image.at<uchar>(y + 1, x + 1));
-    __m64 multiplier = _mm_cvtsi32_si64(2);
-    __m64 part2s = _mm_mullo_pi16(part2, multiplier);
-    __m64 part5s = _mm_mullo_pi16(part2, multiplier);
-    __m64 gx = _mm_add_pi32(part1, part2s);
-    __m64 gx1 = _mm_add_pi32(gx, part3);
-    __m64 gx2 = _mm_sub_pi32(gx1, part4);
-    __m64 gx3 = _mm_sub_pi32(gx2, part5s);
-    __m64 gx4 = _mm_sub_pi32(gx3, part6);
+    __m128i part1 = _mm_cvtsi32_si128((int) image.at<uchar>(y - 1, x - 1));
+    __m128i part2 = _mm_cvtsi32_si128((int) image.at<uchar>(y, x - 1));
+    __m128i part3 = _mm_cvtsi32_si128((int) image.at<uchar>(y + 1, x - 1));
+    __m128i part4 = _mm_cvtsi32_si128((int) image.at<uchar>(y - 1, x + 1));
+    __m128i part5 = _mm_cvtsi32_si128((int) image.at<uchar>(y, x + 1));
+    __m128i part6 = _mm_cvtsi32_si128((int) image.at<uchar>(y + 1, x + 1));
+    __m128i multiplier = _mm_cvtsi32_si128(2);
+    __m128i part2s = _mm_mullo_epi16(part2, multiplier);
+    __m128i part5s = _mm_mullo_epi16(part2, multiplier);
+    __m128i gx = _mm_add_epi32(part1, part2s);
+    __m128i gx1 = _mm_add_epi32(gx, part3);
+    __m128i gx2 = _mm_sub_epi32(gx1, part4);
+    __m128i gx3 = _mm_sub_epi32(gx2, part5s);
+    __m128i gx4 = _mm_sub_epi32(gx3, part6);
 
 
-    return _mm_cvtsi64_si32(gx4);
+    return _mm_cvtsi128_si32(gx4);
 }
 
- 
+
 // Computes the y component of the gradient vector
 // at a given point in a image
 // returns gradient in the y direction
 int yGradientAsm(Mat image, int x, int y) {
     _mm_empty();
-    __m64 part1 = _mm_cvtsi32_si64((int) image.at<uchar>(y - 1, x - 1));
-    __m64 part2 = _mm_cvtsi32_si64((int) image.at<uchar>(y - 1, x));
-    __m64 part3 = _mm_cvtsi32_si64((int) image.at<uchar>(y - 1, x + 1));
-    __m64 part4 = _mm_cvtsi32_si64((int) image.at<uchar>(y + 1, x - 1));
-    __m64 part5 = _mm_cvtsi32_si64((int) image.at<uchar>(y + 1, x));
-    __m64 part6 = _mm_cvtsi32_si64((int) image.at<uchar>(y + 1, x + 1));
-    __m64 multiplier = _mm_cvtsi32_si64(2);
-    __m64 part2s = _mm_mullo_pi16(part2, multiplier);
-    __m64 part5s = _mm_mullo_pi16(part2, multiplier);
-    __m64 gx = _mm_add_pi32(part1, part2s);
-    __m64 gx1 = _mm_add_pi32(gx, part3);
-    __m64 gx2 = _mm_sub_pi32(gx1, part4);
-    __m64 gx3 = _mm_sub_pi32(gx2, part5s);
-    __m64 gx4 = _mm_sub_pi32(gx3, part6);
+    __m128i part1 = _mm_cvtsi32_si128((int) image.at<uchar>(y - 1, x - 1));
+    __m128i part2 = _mm_cvtsi32_si128((int) image.at<uchar>(y - 1, x));
+    __m128i part3 = _mm_cvtsi32_si128((int) image.at<uchar>(y - 1, x + 1));
+    __m128i part4 = _mm_cvtsi32_si128((int) image.at<uchar>(y + 1, x - 1));
+    __m128i part5 = _mm_cvtsi32_si128((int) image.at<uchar>(y + 1, x));
+    __m128i part6 = _mm_cvtsi32_si128((int) image.at<uchar>(y + 1, x + 1));
+    __m128i multiplier = _mm_cvtsi32_si128(2);
+    __m128i part2s = _mm_mullo_epi16(part2, multiplier);
+    __m128i part5s = _mm_mullo_epi16(part2, multiplier);
+    __m128i gx = _mm_add_epi32(part1, part2s);
+    __m128i gx1 = _mm_add_epi32(gx, part3);
+    __m128i gx2 = _mm_sub_epi32(gx1, part4);
+    __m128i gx3 = _mm_sub_epi32(gx2, part5s);
+    __m128i gx4 = _mm_sub_epi32(gx3, part6);
 
-    return  _mm_cvtsi64_si32(gx4);
+    return  _mm_cvtsi128_si32(gx4);
 }
 
 
@@ -75,13 +80,13 @@ int main(int argc, char* argv[]) {
     Mat abs_grad_x, abs_grad_y;
 
     int gx, gy, sum;
- 
+
       // Load an image
-    src = imread(src_file, CV_LOAD_IMAGE_GRAYSCALE);
-     
+    src = imread(src_file,  IMREAD_GRAYSCALE);
+
     if( !src.data )
     { return -1;  }
- 
+
     before = mach_absolute_time();
     GaussianBlur( src, src, Size(3,3), 0, 0, BORDER_DEFAULT );
 
@@ -111,7 +116,7 @@ int main(int argc, char* argv[]) {
     }
     after = mach_absolute_time();
     asmTimer = after - before;
- 
+
     namedWindow("C++ Sobel");
     imshow("C++ Sobel", dst);
     imwrite(proc_file, dst);
@@ -120,10 +125,10 @@ int main(int argc, char* argv[]) {
     imshow("Assembly Sobel", asmDst);
     imwrite(proc2_file, asmDst);
 
- 
+
     namedWindow("initial");
     imshow("initial", src);
-    
+
     std::cout << "C++ timing: " << nativeTimer << " Assembly timing: " << asmTimer << std::endl;
 
     waitKey(0);
